@@ -1,11 +1,11 @@
 import { FC, HTMLAttributes, useCallback, useRef, useState } from 'react'
 import { CheckIcon, ClipboardIcon } from '@heroicons/react/24/outline'
-import { dayjs } from './helpers'
-import ImageUpload from './components/Image/ImageUpload'
+import { dayjs } from '../../helpers'
+import ImageUpload from '../Image/ImageUpload'
 import { useItemProperty } from '@seedprotocol/sdk'
 import { Link, useParams } from 'react-router-dom'
-import SelectOneToMany from './components/SelectOneToMany'
-import { Input } from './components/Input'
+import SelectOneToMany from '../SelectOneToMany'
+import { Input } from '../Input'
 
 const readOnlyProperties = [
   'seedLocalId',

@@ -1,8 +1,9 @@
-import ItemListItem from './ItemListItem'
+// import ItemListItem from './ItemListItem'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { useCreateItem, useItems } from '@seedprotocol/sdk'
-import { useVirtualizer } from '@tanstack/react-virtual'
+// import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef } from 'react'
+import ItemListItem from './ItemListItem'
 
 type ItemListProps = {
   modelName: string
@@ -14,12 +15,12 @@ const ItemList = ({ modelName }: ItemListProps) => {
 
   const parentRef = useRef<HTMLDivElement>(null)
 
-  const virtualizer = useVirtualizer({
-    count: items ? items.length : 0,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 900,
-    enabled: true,
-  })
+  // const virtualizer = useVirtualizer({
+  //   count: items ? items.length : 0,
+  //   getScrollElement: () => parentRef.current,
+  //   estimateSize: () => 900,
+  //   enabled: true,
+  // })
 
   const handleCreateItem = () => {
     // If we're creating a new item from scratch, it requires both a Seed
@@ -31,7 +32,7 @@ const ItemList = ({ modelName }: ItemListProps) => {
     _create()
   }
 
-  const virtualListItems = virtualizer.getVirtualItems()
+  // const virtualListItems = virtualizer.getVirtualItems()
 
   return (
     <>
@@ -41,7 +42,7 @@ const ItemList = ({ modelName }: ItemListProps) => {
             <span>Number of items:</span>
           </div>
           <div className={'flex flex-row items-center'}>
-            <span>{items ? items.length : 0}</span>
+            {/* <span>{items ? items.length : 0}</span> */}
             <button
               className={' text-gray-500 rounded p-1 tx-sm ml-5'}
               // onClick={refresh}
@@ -62,7 +63,7 @@ const ItemList = ({ modelName }: ItemListProps) => {
         </div>
       </div>
       <div className={'flex flex-col w-full'}>
-        <ul className={'max-w-4xl'}>
+        <ul className={'max-w-4xl overflow-scroll'}>
           {items &&
             items.length > 0 &&
             items.slice(0, 5).map((item, index) => (

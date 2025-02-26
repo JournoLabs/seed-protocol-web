@@ -1,8 +1,8 @@
 import { FC, useState } from 'react'
-import { ItemProperty } from '../../src/browser'
+import { IItemProperty } from '@seedprotocol/sdk'
 
 type ImageUploadProps = {
-  itemProperty: ItemProperty<any>
+  itemProperty: IItemProperty<any>
 }
 
 export const ImageUpload: FC<ImageUploadProps> = ({ itemProperty }) => {

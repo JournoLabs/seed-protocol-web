@@ -1,15 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
-import 'dotenv/config'
+// import 'dotenv/config'
 import { createBrowserRouter, createRoutesFromElements, Route, Navigate, RouterProvider } from 'react-router-dom'
 import App from './App.tsx'
 import { QueryClient as ReactQueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import './seedInit'
-import ItemPage from './pages/ItemPage.tsx'
-import TrashPage from './pages/TrashPage.tsx'
-import ModelsDisplay from './ModelsDisplay.tsx'
+import ItemPage from './pages/ItemPage'
+import TrashPage from './pages/TrashPage'
+import ModelsPage from './pages/ModelsPage'
+import ItemsPage from './pages/ItemsPage'
 
 const queryClient = new ReactQueryClient({
   defaultOptions: {
@@ -36,20 +37,28 @@ const router = createBrowserRouter(
         index
         element={
           <Navigate
-            to='/Post'
+            to='/Models'
             replace
           />
         }
       />
       <Route
-        path=':modelName'
-        element={<ModelsDisplay />}
+        path='Models'
+        element={<ModelsPage />}
+      />
+      <Route
+        path='Models/:modelName'
+        element={<ModelsPage />}
+      />
+      <Route
+        path='Items'
+        element={<ItemsPage />}
+      />
+      <Route
+        path='Items/:modelName'
+        element={<ItemsPage />}
       />
     </Route>
-    <Route
-      path=':modelName/:seedId'
-      element={<ItemPage />}
-    />
   </>,
   ),
 )

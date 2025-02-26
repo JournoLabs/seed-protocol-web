@@ -2,7 +2,12 @@
 export default {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      ringColor: {
+        DEFAULT: 'transparent',
+        focus: 'transparent',
+      }
+    },
   },
   plugins: [],
 }
