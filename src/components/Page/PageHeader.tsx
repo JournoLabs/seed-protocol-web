@@ -39,7 +39,10 @@ const PageHeader: FC<PageHeaderProps> = ({ title, description, actions }) => {
     </div>
     <div className="mt-5 flex flex-wrap gap-2 lg:ml-4 lg:mt-0">
       {actions.map(({label, icon, href}) => (
-        <span className="hidden sm:block">
+        <span 
+          key={label}
+          className="hidden sm:block"
+        >
           <button
             type="button"
             className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

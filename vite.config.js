@@ -2,10 +2,22 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { apiRoutes } from './src/plugin/api';
-export default defineConfig({
+import { resolve } from 'path';
+import { dependencies } from './package.json'
+
+const renderChunks = (deps) => {
+    let chunks = {};
+    Object.keys(deps).forEach((key) => {
+      if (['react', 'react-router-dom', 'react-dom'].includes(key)) return;
+      chunks[key] = [key];
+    });
+    return chunks;
+  }
+
+const webConfig = defineConfig({
     envDir: '.',
     optimizeDeps: {
-        exclude: ['@sqlite.org/sqlite-wasm'],
+        exclude: ['@sqlite.org/sqlite-wasm',],
     },
     plugins: [
         react({
@@ -48,13 +60,37 @@ export default defineConfig({
             input: [
                 './index.html',
             ],
-            external: ['@seedprotocol/sdk'],
             output: {
                 format: 'es',
                 entryFileNames: '[name].js',
                 chunkFileNames: '[name]-[hash].js',
                 assetFileNames: '[name]-[hash][extname]',
+                manualChunks: {
+                    vendor: ['react', 'react-router-dom', 'react-dom'],
+                    ...renderChunks(dependencies),
+                },
             },
         },
     },
 });
+
+const cliConfig = defineConfig({
+  build: {
+    target: 'node18',
+    outDir: 'dist',
+    lib: {
+      entry: resolve(__dirname, 'src/cli/index.ts'),
+      formats: ['cjs'],  // CommonJS for Node.js
+    },
+    rollupOptions: {
+      external: ['child_process', 'fs', 'path',],
+    },
+  }
+})
+
+export default ({ command }) => {
+//   if (command === 'build') {
+//     return [webConfig, cliConfig];
+//   }
+  return webConfig;
+};
