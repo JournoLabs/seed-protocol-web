@@ -1589,10 +1589,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-arm64@npm:0.24.2, @esbuild/darwin-arm64@npm:^0.24.2":
+"@esbuild/darwin-arm64@npm:0.24.2":
   version: 0.24.2
   resolution: "@esbuild/darwin-arm64@npm:0.24.2"
-  checksum: a5df2fcfd7282c7fcfb573a13a1aa6dd5b8d1006a1689c5037acd076bb88127d99f20267e2b80796f4d7c3cd1a91f957b4d3f11ec96c6a5e07a29a6c5192e6dd
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -4052,9 +4051,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@seedprotocol/sdk@portal:../seed-protocol-sdk::locator=%40seedprotocol%2Fweb%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@seedprotocol/sdk@portal:../seed-protocol-sdk::locator=%40seedprotocol%2Fweb%40workspace%3A."
+"@seedprotocol/sdk@npm:0.3.4":
+  version: 0.3.4
+  resolution: "@seedprotocol/sdk@npm:0.3.4"
   dependencies:
     "@ethereum-attestation-service/eas-sdk": ^2.7.0
     "@ethersproject/providers": ^5.7.2
@@ -4125,8 +4124,9 @@ __metadata:
       optional: true
   bin:
     seed: dist/bin.js
+  checksum: 84496dfe2106fa8e39040b42c1a8f164e64840e3f2ca7d1cdbe9cafce6e1941671cd71c26b0c2893ebc3bb4197b8aa8f0f52a856e53124d185b882f95d432f84
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "@seedprotocol/web@workspace:.":
   version: 0.0.0-use.local
@@ -4134,14 +4134,13 @@ __metadata:
   dependencies:
     "@babel/core": ^7.26.0
     "@babel/plugin-proposal-decorators": ^7.25.9
-    "@esbuild/darwin-arm64": ^0.24.2
     "@eslint/js": ^9.9.0
     "@ethereum-attestation-service/eas-sdk": ^2.7.0
     "@ethersproject/providers": ^5.7.2
     "@headlessui/react": ^2.2.0
     "@heroicons/react": ^2.2.0
     "@pianity/arsnap-adapter": ^0.2.0
-    "@seedprotocol/sdk": "portal:../seed-protocol-sdk"
+    "@seedprotocol/sdk": 0.3.4
     "@tanstack/react-query": ^5.62.11
     "@types/express": ^5.0.0
     "@types/pluralize": ^0.0.33

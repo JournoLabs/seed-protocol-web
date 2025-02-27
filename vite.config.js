@@ -47,7 +47,6 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 './index.html',
-                './bin/seed-cli.ts'
             ],
             external: ['@seedprotocol/sdk'],
             output: {
