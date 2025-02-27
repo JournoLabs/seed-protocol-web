@@ -1,7 +1,6 @@
 import { models } from '../../schema'
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { Fragment, memo, } from 'react'
-import { PlusIcon } from '@heroicons/react/24/outline'
 import PageContainer from '../components/Page/PageContainer'
 
 
