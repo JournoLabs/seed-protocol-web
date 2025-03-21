@@ -30,7 +30,7 @@ const webConfig = defineConfig({
         nodePolyfills({
             include: ['crypto', 'util', 'stream'],
         }),
-        apiRoutes()
+        apiRoutes(),
     ],
     server: {
         port: 4004,
@@ -74,7 +74,7 @@ const webConfig = defineConfig({
     },
 });
 
-const cliConfig = defineConfig({
+const containerConfig = defineConfig({
   build: {
     target: 'node18',
     outDir: 'dist',

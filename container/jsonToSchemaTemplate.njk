@@ -1,0 +1,31 @@
+import { {{ importItems | join(', ') }} } from '@seedprotocol/sdk'
+
+{% for modelName, modelConfig in models %}
+@Model
+class {{ modelName }} {
+{%- for propName, propConfig in modelConfig.properties %}  {{ propConfig | propertyDecorator(propName) }}
+{% endfor -%}
+}
+
+{% endfor %}
+const models = {
+{%- for name in modelNames %}  {{ name }},
+{% endfor -%}
+}
+
+const endpoints = {
+  filePaths: '{{ endpoints.filePaths }}',
+  files: '{{ endpoints.files }}',
+}
+
+{% if arweaveDomain %}
+const arweaveDomain = '{{ arweaveDomain }}'
+
+export { models, endpoints, arweaveDomain }
+
+export default { models, endpoints, arweaveDomain }
+{% else %}
+export { models, endpoints }
+
+export default { models, endpoints }
+{% endif %}

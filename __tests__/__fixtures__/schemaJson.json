@@ -1,0 +1,113 @@
+{
+  "title": "Seed Protocol Schema",
+  "description": "Schema definitions for Seed Protocol models",
+  "models": {
+    "Post": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "summary": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "featureImage": {
+          "type": "string",
+          "propertyType": "Image"
+        },
+        "html": {
+          "type": "string",
+          "propertyType": "Text",
+          "storage": "ItemStorage",
+          "path": "/html",
+          "extension": ".html"
+        },
+        "json": {
+          "type": "string",
+          "propertyType": "Text",
+          "storage": "ItemStorage",
+          "path": "/json",
+          "extension": ".json"
+        },
+        "storageTransactionId": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "relation": "Identity"
+          },
+          "propertyType": "List"
+        },
+        "importUrl": {
+          "type": "string",
+          "propertyType": "Text"
+        }
+      },
+      "required": [
+        "title",
+        "summary",
+        "featureImage",
+        "html",
+        "json",
+        "storageTransactionId",
+        "authors"
+      ]
+    },
+    "Identity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "profile": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "displayName": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "avatarImage": {
+          "type": "string",
+          "propertyType": "Image"
+        },
+        "coverImage": {
+          "type": "string",
+          "propertyType": "Image"
+        }
+      },
+      "required": [
+        "name",
+        "profile"
+      ]
+    },
+    "Link": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "text": {
+          "type": "string",
+          "propertyType": "Text"
+        }
+      },
+      "required": [
+        "url",
+        "text"
+      ]
+    }
+  },
+  "endpoints": {
+    "filePaths": "/api/seed/migrations",
+    "files": "/app-files"
+  },
+  "arweaveDomain": "arweave.net"
+}

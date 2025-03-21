@@ -4,8 +4,8 @@ import { dayjs } from '../../helpers'
 import ImageUpload from '../Image/ImageUpload'
 import { useItemProperty } from '@seedprotocol/sdk'
 import { Link, useParams } from 'react-router-dom'
-import SelectOneToMany from '../SelectOneToMany'
-import { Input } from '../Input'
+import SelectOneToMany from '../Form/SelectOneToMany'
+import { Input } from '../Form/Input'
 
 const readOnlyProperties = [
   'seedLocalId',

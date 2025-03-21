@@ -1,18 +1,11 @@
-import { ImageSrc, List, Model, Relation, Text } from '@seedprotocol/sdk'
+import { Image, List, Model, Relation, Text, Date, Number, Boolean } from '@seedprotocol/sdk'
 
-@Model
-class Image {
-  @Text() storageTransactionId!: string
-  @Text() uri!: string
-  @Text() alt!: string
-  @ImageSrc() src!: string
-}
 
 @Model
 class Post {
   @Text() title!: string
   @Text() summary!: string
-  @Relation('Image', 'ImageSrc') featureImage!: string
+  @Image() featureImage!: string
   @Text('ItemStorage', '/html', '.html') html!: string
   @Text('ItemStorage', '/json', '.json') json!: string
   @Text() storageTransactionId!: string
@@ -25,8 +18,8 @@ class Identity {
   @Text() name!: string
   @Text() profile!: string
   @Text() displayName!: string
-  @Relation('Image', 'ImageSrc') avatarImage!: string
-  @Relation('Image', 'ImageSrc') coverImage!: string
+  @Image() avatarImage!: string
+  @Image() coverImage!: string
 }
 
 @Model
@@ -35,11 +28,23 @@ class Link {
   @Text() text!: string
 }
 
+@Model
+class TestModel {
+  @Text() name!: string
+  @Date() birthdate!: string
+  @Number() age!: number
+  @Boolean() isAlive!: boolean
+  @List('Text') nicknames!: string[]
+  @Relation('TestModel') bestFriend!: string
+  @Image() profilePic!: string
+}
+
+
 const models = {
   Identity,
-  Image,
   Link,
   Post,
+  TestModel,
 }
 
 const endpoints = {
@@ -47,6 +52,8 @@ const endpoints = {
   files: '/app-files',
 }
 
-export { models, endpoints }
+const arweaveDomain = 'arweave.net'
 
-export default { models, endpoints }
+export { models, endpoints, arweaveDomain }
+
+export default { models, endpoints, arweaveDomain }

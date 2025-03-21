@@ -1,0 +1,164 @@
+{
+  "title": "Untitled Schema",
+  "description": "",
+  "models": {
+    "Post": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "summary": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "featureImage": {
+          "type": "string",
+          "propertyType": "Image"
+        },
+        "html": {
+          "type": "string",
+          "propertyType": "Text",
+          "storage": "'ItemStorage'",
+          "path": "'/html'",
+          "extension": "'.html'"
+        },
+        "json": {
+          "type": "string",
+          "propertyType": "Text",
+          "storage": "'ItemStorage'",
+          "path": "'/json'",
+          "extension": "'.json'"
+        },
+        "storageTransactionId": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "authors": {
+          "type": "string",
+          "propertyType": "List",
+          "items": {
+            "type": "string",
+            "relation": "'Identity'"
+          }
+        },
+        "importUrl": {
+          "type": "string",
+          "propertyType": "Text"
+        }
+      },
+      "required": [
+        "title",
+        "summary",
+        "featureImage",
+        "html",
+        "json",
+        "storageTransactionId",
+        "authors",
+        "importUrl"
+      ]
+    },
+    "Identity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "profile": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "displayName": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "avatarImage": {
+          "type": "string",
+          "propertyType": "Image"
+        },
+        "coverImage": {
+          "type": "string",
+          "propertyType": "Image"
+        }
+      },
+      "required": [
+        "name",
+        "profile",
+        "displayName",
+        "avatarImage",
+        "coverImage"
+      ]
+    },
+    "Link": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "text": {
+          "type": "string",
+          "propertyType": "Text"
+        }
+      },
+      "required": [
+        "url",
+        "text"
+      ]
+    },
+    "TestModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "propertyType": "Text"
+        },
+        "birthdate": {
+          "type": "string",
+          "propertyType": "Date"
+        },
+        "age": {
+          "type": "number",
+          "propertyType": "Number"
+        },
+        "isAlive": {
+          "type": "boolean",
+          "propertyType": "Boolean"
+        },
+        "nicknames": {
+          "type": "string",
+          "propertyType": "List",
+          "items": {
+            "type": "string",
+            "relation": "'Text'"
+          }
+        },
+        "bestFriend": {
+          "type": "string",
+          "propertyType": "Relation",
+          "relation": "'TestModel'"
+        },
+        "profilePic": {
+          "type": "string",
+          "propertyType": "Image"
+        }
+      },
+      "required": [
+        "name",
+        "birthdate",
+        "age",
+        "isAlive",
+        "nicknames",
+        "bestFriend",
+        "profilePic"
+      ]
+    }
+  },
+  "endpoints": {
+    "filePaths": "/api/seed/migrations",
+    "files": "/app-files"
+  },
+  "arweaveDomain": "arweave.net"
+}

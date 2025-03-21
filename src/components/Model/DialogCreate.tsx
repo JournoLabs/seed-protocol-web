@@ -1,16 +1,24 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, } from 'react';
 import { Form, Field } from 'react-final-form';
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
-import { XMarkIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild, Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import { XMarkIcon, PlusIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import arrayMutators from 'final-form-arrays';
 import { FieldArray } from 'react-final-form-arrays';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { getDb } from '../../state/db';
+import { writeAppState } from '../../helpers/appState';
+import debug from 'debug'
+import { WebContainerService } from '../../services/webcontainer'
+
+const logger = debug('seedWeb:components:Model:DialogCreate')
 
 // Type definitions
-type PropertyType = 'Text' | 'Number' | 'Boolean' | 'Date' | 'Relation' | 'List' | 'ImageSrc';
+type PropertyType = 'Text' | 'Number' | 'Boolean' | 'Date' | 'Relation' | 'RelationList' | 'List' | 'Image';
 
 interface Property {
   name: string;
   type: PropertyType;
+  targetModel?: string; // Optional target model for relations
 }
 
 interface ModelFormValues {
@@ -25,34 +33,56 @@ const PROPERTY_TYPES: PropertyType[] = [
   'Boolean',
   'Date',
   'Relation',
+  'RelationList',
   'List',
-  'ImageSrc'
+  'Image'
 ];
 
-const DialogCreate: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const availableModels = ['Post', 'User', 'Product', 'Identity']; // Example models
 
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
+const DialogCreate: React.FC = () => {
+
+  const db = getDb()
+
+  const isOpen = useLiveQuery(
+    () => db.appState.filter(a => a.key === 'isDialogCreateOpen').first().then(a => a?.value),
+    [],
+    false
+  )
+
+  const isSavingModel = useLiveQuery(
+    () => db.appState.filter(a => a.key === 'isSavingModel').first().then(a => a?.value),
+    [],
+    false
+  )
+
+  console.log('isOpen', isOpen)
+
+  const closeModal = async () => {
+    await writeAppState('isDialogCreateOpen', false)
+  }
 
   const initialValues: ModelFormValues = {
     modelName: '',
     properties: [{ name: '', type: 'Text' }]
   };
 
-  const onSubmit = (values: ModelFormValues) => {
-    console.log('Form values:', values);
+  const onSubmit = async (values: ModelFormValues) => {
+    logger('Form values:', values);
+    await writeAppState('isSavingModel', true)
+
+    const webcontainer = WebContainerService.getWebContainer()
+
+    await webcontainer!.fs.writeFile('./schemaJson.json', JSON.stringify(values, null, 2))
     
-    // Generate TypeScript code based on form values
-    const generatedCode = generateModelCode(values);
-    console.log('Generated code:', generatedCode);
-    
+    await WebContainerService.runCommand('npx tsx ./jsonToSchema.ts',)
     // Close modal after submit
     closeModal();
+    await writeAppState('isSavingModel', false)
   };
 
-  const validate = (values: ModelFormValues) => {
-    const errors: any = {};
+  const validate = async (values: ModelFormValues): Promise<Record<string, string | Record<string, string>[]>> => {
+    const errors: Record<string, string | Record<string, string>[]> = {};
 
     if (!values.modelName) {
       errors.modelName = 'Model name is required';
@@ -60,7 +90,7 @@ const DialogCreate: React.FC = () => {
 
     if (values.properties) {
       const propertyErrors = values.properties.map(property => {
-        const propError: any = {};
+        const propError: Record<string, string> = {};
         if (!property.name) {
           propError.name = 'Property name is required';
         }
@@ -70,6 +100,10 @@ const DialogCreate: React.FC = () => {
       if (propertyErrors.some(error => Object.keys(error).length > 0)) {
         errors.properties = propertyErrors;
       }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      await writeAppState('isSavingModel', false)
     }
 
     return errors;
@@ -83,7 +117,13 @@ const DialogCreate: React.FC = () => {
 
 @Model
 class ${modelName} {
-${properties.map(prop => `  @${prop.type}() ${prop.name}!: ${getTypeForProperty(prop)}`).join('\n')}
+${properties.map(prop => {
+  if (prop.type === 'Relation' || prop.type === 'RelationList') {
+    const relationType = prop.type === 'Relation' ? prop.targetModel : `${prop.targetModel}[]`;
+    return `  @${prop.type}() ${prop.name}!: ${relationType}`;
+  }
+  return `  @${prop.type}() ${prop.name}!: ${getTypeForProperty(prop)}`;
+}).join('\n')}
 }
 
 export { ${modelName} }`;
@@ -104,7 +144,7 @@ export { ${modelName} }`;
         return 'string[]';
       case 'Relation':
         return 'string';
-      case 'ImageSrc':
+      case 'Image':
         return 'string';
       default:
         return 'any';
@@ -113,10 +153,10 @@ export { ${modelName} }`;
 
   return (
     <>
-      <Transition appear show={isOpen} as={Fragment}>
+      <Transition appear show={!!isOpen} as={'div'}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
           <TransitionChild
-            as={Fragment}
+            as={'div'}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -130,7 +170,7 @@ export { ${modelName} }`;
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
               <TransitionChild
-                as={Fragment}
+                as={'div'}
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 scale-95"
                 enterTo="opacity-100 scale-100"
@@ -162,13 +202,12 @@ export { ${modelName} }`;
                     mutators={{
                       ...arrayMutators
                     }}
+                    keepDirtyOnReinitialize={true}
                     render={({
                       handleSubmit,
-                      form,
                       submitting,
                       pristine,
-                      values,
-                      errors
+                      values
                     }) => (
                       <form onSubmit={handleSubmit} className="mt-4 space-y-6">
                         <div>
@@ -229,6 +268,17 @@ export { ${modelName} }`;
                                               </option>
                                             ))}
                                           </Field>
+
+                                          {(fields.value[index].type === 'Relation' || fields.value[index].type === 'RelationList') && (
+                                            <Field name={`${name}.targetModel`} component="select" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm mt-2">
+                                              <option value="">Select target model</option>
+                                              {availableModels.map(model => (
+                                                <option key={model} value={model}>
+                                                  {model}
+                                                </option>
+                                              ))}
+                                            </Field>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -256,10 +306,28 @@ export { ${modelName} }`;
                         </div>
 
                         <div className="pt-3 border-t border-gray-200">
-                          <h4 className="text-sm font-medium text-gray-700">Preview</h4>
-                          <pre className="mt-2 p-3 bg-gray-50 rounded-md text-xs overflow-auto">
-                            {generateModelCode(values)}
-                          </pre>
+                          <Disclosure defaultOpen={false} as={'div'}>
+                            {({ open }) => (
+                              <>
+                                <DisclosureButton 
+                                  as="button"
+                                  className="flex w-full justify-between items-center text-sm font-medium text-gray-700 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75"
+                                >
+                                  <h4>Preview</h4>
+                                  {open ? (
+                                    <ChevronUpIcon className="h-5 w-5 text-gray-500" />
+                                  ) : (
+                                    <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                                  )}
+                                </DisclosureButton>
+                                <DisclosurePanel className="mt-2">
+                                  <pre className="p-3 bg-gray-50 rounded-md text-xs overflow-auto">
+                                    {generateModelCode(values)}
+                                  </pre>
+                                </DisclosurePanel>
+                              </>
+                            )}
+                          </Disclosure>
                         </div>
 
                         <div className="flex justify-end space-x-3">
@@ -272,10 +340,10 @@ export { ${modelName} }`;
                           </button>
                           <button
                             type="submit"
-                            disabled={submitting || pristine}
+                            disabled={submitting || pristine || isSavingModel}
                             className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2  focus:ring-offset-2 disabled:bg-blue-300"
                           >
-                            Save Model
+                            {isSavingModel ? 'Saving...' : 'Save Model'}
                           </button>
                         </div>
                       </form>

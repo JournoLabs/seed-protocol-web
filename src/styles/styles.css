@@ -7,7 +7,6 @@ html, body {
   width: 100%;
 }
 
-
 h1, h2, h3, h4, h5, h6 {
   @apply font-sans font-bold text-gray-900;
 }
@@ -20,8 +19,16 @@ h2 {
   @apply text-3xl mb-2;
 }
 
+h3 {
+  @apply text-2xl mb-1;
+}
+
+h4 {
+  @apply text-xl mb-0.5;
+}
+
 main {
-  @apply flex flex-col p-10 w-full text-gray-700;
+  @apply flex flex-col w-full text-gray-700;
   overflow: hidden;
 }
 

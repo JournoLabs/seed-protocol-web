@@ -1,0 +1,119 @@
+/* Handsontable Custom Styles */
+.handsontable-container .htCustom {
+  @apply font-sans text-base antialiased;
+}
+
+.handsontable-container .htCustom .handsontable {
+  @apply bg-white rounded-lg overflow-hidden shadow-sm;
+}
+
+/* Header styles */
+.handsontable-container .htCustom .handsontable th {
+  @apply text-gray-600 font-medium text-sm px-6 py-3;
+  height: auto !important;
+  white-space: normal;
+  background: transparent !important;
+}
+
+/* Cell styles */
+.handsontable-container .htCustom .handsontable td {
+  @apply text-gray-900 px-6 py-4;
+  height: auto !important;
+  white-space: pre-wrap;
+  word-break: break-word;
+  vertical-align: top;
+}
+
+/* Row hover */
+.handsontable-container .htCustom .handsontable tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Selected/active state */
+.handsontable-container .htCustom .handsontable .current {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.handsontable-container .htCustom .handsontable .area.area-highlight {
+  @apply bg-blue-50/50;
+}
+
+/* Dropdown menu */
+.handsontable-container .htCustom .handsontable .htDropdownMenu {
+  @apply shadow-lg rounded-md border border-gray-200 bg-white py-1;
+}
+
+.handsontable-container .htCustom .handsontable .htDropdownMenu .ht_master .htCore {
+  @apply rounded-md overflow-hidden;
+}
+
+.handsontable-container .htCustom .handsontable .htDropdownMenu tbody td {
+  @apply px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer;
+}
+
+/* Input fields */
+.handsontable-container .htCustom .handsontable .htUIInput.htUIButton,
+.handsontable-container .htCustom .handsontable .htUIInput.htUISelectButton {
+  @apply bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-300 rounded-md px-3 py-2 text-sm;
+}
+
+/* Checkbox styling */
+.handsontable-container .htCustom .handsontable td.htCheckboxRendererInput {
+  @apply text-center;
+}
+
+.handsontable-container .htCustom .handsontable td.htCheckboxRendererInput input[type="checkbox"] {
+  @apply w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
+}
+
+/* Invalid cell highlighting */
+.handsontable-container .htCustom .handsontable td.htInvalid {
+  @apply bg-red-50 border-red-200;
+}
+
+/* Read-only cells */
+.handsontable-container .htCustom .handsontable td.htDimmed {
+  @apply bg-gray-50 text-gray-500;
+}
+
+/* Placeholder style */
+.handsontable-container .htCustom .handsontable .htPlaceholder {
+  @apply text-gray-400;
+}
+
+/* Column resize handle */
+.handsontable-container .htCustom .handsontable .manualColumnResizer {
+  @apply cursor-col-resize;
+}
+
+.handsontable-container .htCustom .handsontable .manualColumnResizerGuide {
+  @apply bg-blue-500;
+}
+
+/* Context menu */
+.handsontable-container .htCustom .htContextMenu {
+  @apply shadow-lg rounded-md border border-gray-200 bg-white py-1;
+}
+
+.handsontable-container .htCustom .htContextMenu .ht_master .htCore td {
+  @apply px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer;
+}
+
+.handsontable-container .htCustom .htContextMenu .ht_master .htCore td.htSeparator {
+  @apply border-t border-gray-200 my-1;
+}
+
+.handsontable-container .htCustom .htContextMenu .ht_master .htCore td.htDisabled {
+  @apply text-gray-400 cursor-not-allowed hover:bg-white;
+}
+
+/* Multiline content specific styles */
+.handsontable-container .htCustom .handsontable td > div,
+.handsontable-container .htCustom .handsontable th > div {
+  @apply whitespace-pre-wrap break-words;
+}
+
+.handsontable-container .htCustom .handsontable td.htStretch {
+  height: auto !important;
+  white-space: pre-wrap !important;
+} 

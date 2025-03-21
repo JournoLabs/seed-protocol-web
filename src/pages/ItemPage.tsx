@@ -30,12 +30,12 @@ const ItemPage: FC = () => {
 
   return (
     <div className={'p-12 max-w-4xl'}>
-      <Link
+      {/* <Link
         to={`/${modelName}`}
         className={'text-blue-500 hover:underline'}
       >
         &larr; Back to {pluralize(modelName as string)}
-      </Link>
+      </Link> */}
       <div 
         className={'flex flex-row items-center justify-between'}
       >

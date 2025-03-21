@@ -42,13 +42,18 @@ export const dbInit = async (): Promise<SeedProtocolWebDb> => {
   console.log('called dbInit',)
   await db.open()
 
-  await writeAppState(AppStateKey.DbReady, false,)
+  await writeAppState(AppStateKey.IS_DB_READY, false,)
+  await writeAppState(AppStateKey.IS_WEB_CONTAINER_READY, false,)
+  await writeAppState(AppStateKey.IS_DIALOG_CREATE_OPEN, false,)
+  await writeAppState(AppStateKey.IS_SAVING_MODEL, false,)
+  await writeAppState(AppStateKey.IS_DIALOG_OUTPUT_VISIBLE, false,)
+  await writeAppState(AppStateKey.IS_DIALOG_PREVIEW_OPEN, false,)
 
   await db.transaction('rw', [ db.appState, ], async () => {
     await writeAppState('addresses', [],)
   },)
 
-  await writeAppState(AppStateKey.DbReady, true,)
+  await writeAppState(AppStateKey.IS_DB_READY, true,)
 
   return db
 }
@@ -56,7 +61,7 @@ export const dbInit = async (): Promise<SeedProtocolWebDb> => {
 export const useIsDbReady = () => {
   const isDbReady = useLiveQuery(
     () => db.appState.where(
-      { key : AppStateKey.DbReady, },
+      { key : AppStateKey.IS_DB_READY, },
     ).first().then(
       (appState,) => appState && appState.value ? appState.value as boolean : false,
     ),

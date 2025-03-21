@@ -1,20 +1,26 @@
-import { FC, PropsWithChildren, useEffect, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { models } from '../../../schema'
 import PageHeader from "./PageHeader"
 
 const modelNames = Object.keys(models)
 
-type PageContainerProps = PropsWithChildren & {
+interface PageContainerRenderProps {
+  selectedIndex: number;
+  setSelectedIndex: (index: number) => void;
+}
+
+type PageContainerProps = {
   title: string
   description: string
   actions: { label: string; icon: React.ReactNode; href: string }[]
   firstLevelNav: string | undefined
+  children: (props: PageContainerRenderProps) => React.ReactNode
 }
 
 const PageContainer: FC<PageContainerProps> = ({children, title, description, actions, firstLevelNav}) => {
 
-  const { modelName, seedId } = useParams()
+  const { modelName, seedId, section } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -34,10 +40,10 @@ const PageContainer: FC<PageContainerProps> = ({children, title, description, ac
   // Update the URL when the tab changes
   useEffect(() => {
     const currentTab = modelNames[selectedIndex]
-    if (!seedId && location.pathname !== `/${firstLevelNav}/${currentTab}`) {
-      navigate(`/${firstLevelNav}/${currentTab}`, { preventScrollReset: true })
+    if (!seedId && location.pathname !== `/${section}/${currentTab}`) {
+      navigate(`/${section}/${currentTab}`, { preventScrollReset: true })
     }
-  }, [selectedIndex, navigate, location])
+  }, [selectedIndex, navigate, location, section])
 
   return (
     <>
@@ -46,7 +52,9 @@ const PageContainer: FC<PageContainerProps> = ({children, title, description, ac
         description={description}
         actions={actions}
       />
-      {typeof children === 'function' ? children({selectedIndex, setSelectedIndex}) : null}
+      <div className="py-10">
+        {typeof children === 'function' ? children({selectedIndex, setSelectedIndex}) : null}
+      </div>
     </>
   )
 }

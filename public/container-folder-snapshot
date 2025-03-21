@@ -1,0 +1,546 @@
+Å°dÜØjsonToSchema.tsÅ°fÅ°c≈#!/usr/bin/env node
+
+import { PropertyConfig, SchemaConfig } from './types'
+import * as nunjucks                         from 'nunjucks'
+import {writeFileSync, readFileSync} from 'node:fs'
+import {join, basename, dirname} from 'path'
+import { ILoader } from 'nunjucks'
+
+
+/**
+ * Determines if a file is TypeScript or JSON based on extension
+ * @param filePath Path to the file
+ * @returns File type ('ts', 'json', or 'unknown')
+ */
+function detectFileType(filePath: string): 'ts' | 'json' | 'unknown' {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.ts' || ext === '.tsx') return 'ts';
+  if (ext === '.json') return 'json';
+  return 'unknown';
+}
+
+/**
+ * Analyzes JSON schema to determine which import items are needed
+ * @param jsonSchema The parsed JSON schema
+ * @returns Array of needed import items
+ */
+function determineRequiredImports(jsonSchema: SchemaConfig): string[] {
+  const requiredImports = new Set<string>();
+
+  // Model is always required
+  requiredImports.add('Model');
+
+  // Check each model's properties for field types
+  for (const model of Object.values(jsonSchema.models)) {
+    for (const property of Object.values(model.properties)) {
+      const propertyType = property.propertyType;
+      requiredImports.add(propertyType);
+
+      // Check for List fields with relations
+      if (propertyType === 'List' && property.items && property.items.relation) {
+        requiredImports.add('List');
+      }
+    }
+  }
+
+  return Array.from(requiredImports);
+}
+
+/**
+ * Creates an array of model names from the schema
+ * @param jsonSchema The parsed JSON schema
+ * @returns Array of model names
+ */
+function extractModelNames(jsonSchema: SchemaConfig): string[] {
+  return Object.keys(jsonSchema.models);
+}
+
+/**
+ * JSON to TypeScript conversion
+ */
+function jsonToTypeScript(jsonContent: string, outputPath: string, templatePath?: string): void {
+  try {
+    const jsonSchema = JSON.parse(jsonContent) as SchemaConfig;
+    const env = setupNunjucks();
+
+    // Determine required imports
+    const importItems = determineRequiredImports(jsonSchema);
+
+    // Extract model names
+    const modelNames = extractModelNames(jsonSchema);
+
+    // Add importItems and modelNames to the context
+    const context = {
+      ...jsonSchema,
+      importItems,
+      modelNames
+    };
+
+    let template: string;
+    if (templatePath) {
+      template = fs.readFileSync(templatePath, 'utf8');
+    } else {
+      template = DEFAULT_SCHEMA_TEMPLATE;
+    }
+
+    const renderedSchema = env.renderString(template, context);
+    fs.writeFileSync(outputPath, renderedSchema);
+    console.log(`TypeScript schema generated at: ${outputPath}`);
+  } catch (error) {
+    console.error('Error converting JSON to TypeScript:', error);
+    throw error;
+  }
+}
+
+
+const propertyDecorator = (property: PropertyConfig, propertyName: string) => {
+    const propertyType = property.propertyType;
+
+  if (propertyType === 'Text') {
+    if (property.storage && property.path && property.extension) {
+      return `@Text('${property.storage}', '${property.path}', '${property.extension}') ${propertyName}!: string`;
+    } else {
+      return `@Text() ${propertyName}!: string`;
+    }
+  } else if (propertyType === 'Image') {
+    return `@Image() ${propertyName}!: string`;
+  } else if (propertyType === 'List') {
+    const relationItem = property.items?.relation;
+    if (relationItem) {
+      return `@List('${relationItem}') ${propertyName}!: string[]`;
+    }
+  } else if (propertyType === 'Date') {
+    return `@Date() ${propertyName}!: Date`;
+  } else if (propertyType === 'Number') {
+    return `@Number() ${propertyName}!: number`;
+  } else if (propertyType === 'Boolean') {
+    return `@Boolean() ${propertyName}!: boolean`;
+  }
+
+  return `// Unknown field type: ${propertyType}`;
+}
+
+/**
+ * Generates TypeScript schema file from JSON Schema configuration using Nunjucks
+ * @param jsonSchema The JSON Schema configuration
+ * @param outputPath The path to write the output TypeScript file
+ */
+const generateSchemaFromJson = (jsonSchema: SchemaConfig, outputPath: string): void => {
+  
+  const templatePath = join(dirname(outputPath), 'jsonToSchemaTemplate.njk')
+
+  const TemplateLoader: ILoader = {
+    getSource: (name: string) => {
+      let templateFilePath
+      if (name.includes(templatePath)) {
+        templateFilePath = name
+      } else {
+        templateFilePath = join(templatePath, basename(name))
+      }
+      const src = readFileSync(templateFilePath, 'utf-8')
+  
+      return {
+        path: name,
+        src,
+        noCache: false,
+      }
+    },
+  }
+  
+  const env = new nunjucks.Environment(TemplateLoader, {autoescape: false})
+  
+  // Custom filter to format field decorators
+  env.addFilter('propertyDecorator', propertyDecorator);
+
+  // Determine required imports
+  const importItems = determineRequiredImports(jsonSchema);
+
+  // Extract model names
+  const modelNames = extractModelNames(jsonSchema);
+
+  // Add importItems and modelNames to the context
+  const context = {
+    ...jsonSchema,
+    importItems,
+    modelNames
+  };
+
+  // Render the template with the schema data
+  const renderedSchema = env.render(templatePath, context);
+
+  // Write to file
+  writeFileSync(outputPath, renderedSchema,);
+  console.log(`Schema file generated at: ${outputPath}`);
+}
+
+/**
+ * Helper function to convert the schema from JSON string
+ */
+export const convertJsonSchemaToTypeScript = (inputPath: string, outputPath: string): void => {
+
+  if (!inputPath) {
+    throw new Error('Input path is required')
+  }
+
+  try {
+    const jsonSchemaString = readFileSync(inputPath, 'utf8');
+    const jsonSchema = JSON.parse(jsonSchemaString) as SchemaConfig;
+    generateSchemaFromJson(jsonSchema, outputPath);
+  } catch (error) {
+    console.error('Error converting schema:', error);
+  }
+}
+
+
+const calledFrom = basename(process.argv[1])
+
+if (calledFrom === 'jsonToSchema.ts') {
+  try {
+    const args = process.argv.slice(2);
+    const workingDir = process.cwd();
+    let inputPath = join(workingDir, 'schemaJson.json');
+    let outputPath = join(workingDir, 'schema.ts');
+
+    if (args.length === 2) {
+      inputPath = args[0];
+      outputPath = args[1];
+    }
+
+    if (args.length === 1) {
+      inputPath = args[0];
+    }
+
+    console.log('inputPath', inputPath);
+    console.log('outputPath', outputPath);
+
+    convertJsonSchemaToTypeScript(inputPath, outputPath);
+  } catch ( err ) {
+    console.error(err)
+  }
+}
+∏jsonToSchemaTemplate.njkÅ°fÅ°c≈≈import { {{ importItems | join(', ') }} } from '@seedprotocol/sdk'
+
+{% for modelName, modelConfig in models %}
+@Model
+class {{ modelName }} {
+{%- for propName, propConfig in modelConfig.properties %}  {{ propConfig | propertyDecorator(propName) }}
+{% endfor -%}
+}
+
+{% endfor %}
+const models = {
+{%- for name in modelNames %}  {{ name }},
+{% endfor -%}
+}
+
+const endpoints = {
+  filePaths: '{{ endpoints.filePaths }}',
+  files: '{{ endpoints.files }}',
+}
+
+{% if arweaveDomain %}
+const arweaveDomain = '{{ arweaveDomain }}'
+
+export { models, endpoints, arweaveDomain }
+
+export default { models, endpoints, arweaveDomain }
+{% else %}
+export { models, endpoints }
+
+export default { models, endpoints }
+{% endif %}
+¨package.jsonÅ°fÅ°cƒª{
+  "name": "seed-container",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "nunjucks": "^3.2.4"
+  }
+}
+ØschemaToJson.tsÅ°fÅ°c≈ñ#!/usr/bin/env node
+
+import * as ts                                       from 'typescript';
+import { ModelConfig, PropertyConfig, SchemaConfig } from './types'
+import { readFileSync, writeFileSync }               from 'node:fs'
+import { basename, join }              from 'path'
+
+/**
+ * TypeScript to JSON conversion
+ */
+export const schemaToJson = (inputPath: string, outputPath: string): void => {
+
+  const tsContentBuffer = readFileSync(inputPath)
+
+  const decoder = new TextDecoder('utf-8')
+  const tsContent = decoder.decode(tsContentBuffer)
+
+  try {
+    // Create a TypeScript source file
+    const sourceFile = ts.createSourceFile(
+      'schema.ts',
+      tsContent,
+      ts.ScriptTarget.Latest,
+      true
+    );
+
+    // Initialize the result object
+    const result: SchemaConfig = {
+      title: 'Untitled Schema',
+      description: '',
+      models: {},
+      endpoints: {
+        filePaths: '',
+        files: '',
+      },
+      arweaveDomain: ''
+    };
+
+    // Find all class declarations (models)
+    const models: { [key: string]: ModelConfig } = {};
+    const endpointsObj: Record<string, unknown> = {};
+    let arweaveDomain: string | undefined = undefined;
+
+
+    // Find the import statement to ensure we're looking at the right file
+    let isValidSchemaFile = false;
+    ts.forEachChild(sourceFile, (node) => {
+      if (ts.isImportDeclaration(node) &&
+          node.moduleSpecifier &&
+          ts.isStringLiteral(node.moduleSpecifier) &&
+          node.moduleSpecifier.text === '@seedprotocol/sdk') {
+        isValidSchemaFile = true;
+      }
+    });
+
+    if (!isValidSchemaFile) {
+      console.warn('Warning: The TypeScript file does not import from @seedprotocol/sdk. Results may be incomplete.');
+    }
+
+    // Visit each node in the source file
+    const visit = (node: ts.Node) => {
+      // Find class declarations with @Model decorator
+      if (ts.isClassDeclaration(node) && node.modifiers && node.modifiers.length > 0) {
+        const modelDecorator = node.modifiers[0].getText()
+
+        if (modelDecorator && modelDecorator === '@Model' && node.name) {
+          const modelName = node.name.text;
+          const modelSchema: ModelConfig = {
+            type: 'object',
+            properties: {},
+            required: []
+          };
+
+          // Process properties in the class
+          node.members.forEach(member => {
+            if (ts.isPropertyDeclaration(member) && member.modifiers && member.modifiers.length > 0 && member.name) {
+              const propName = member.name.getText(sourceFile);
+              const decorator = member.modifiers[0]
+              const decoratorText = decorator.getText();
+              const decoratorArguments = decorator.expression.arguments;
+
+              if (decoratorText) {
+                let propertyType: string | undefined
+                const match = decoratorText.match(/^@(\w+)\(/);
+
+                if (match && match[1]) {
+                  propertyType = match[1];
+                }
+                if (!propertyType) {
+                  console.warn(`Warning: Property ${propName} in model ${modelName} does not have a valid decorator. Skipping...`);
+                  return;
+                }
+                const jsonProperty: PropertyConfig = {
+                  type: 'string', // Default type
+                  propertyType
+                };
+
+                // Handle different field types
+                switch (propertyType) {
+                  case 'Text':
+                    if (decoratorArguments.length >= 3) {
+                      jsonProperty.storage = decoratorArguments[0].getText();
+                      jsonProperty.path = decoratorArguments[1].getText();
+                      jsonProperty.extension = decoratorArguments[2].getText();
+                    }
+                    break;
+                  case 'Image':
+                    // No additional properties needed
+                    break;
+                  case 'Relation':
+                    if (decoratorArguments.length >= 1) {
+                      jsonProperty.relation = decoratorArguments[0].getText();
+                    }
+                    break;
+                  case 'List':
+                    if (decoratorArguments.length >= 1) {
+                      jsonProperty.items = {
+                        type: 'string',
+                        relation: decoratorArguments[0].getText()
+                      };
+                    }
+                    break;
+                  case 'Date':
+                    jsonProperty.type = 'string'; // or 'date-time' format
+                    break;
+                  case 'Number':
+                    jsonProperty.type = 'number';
+                    break;
+                  case 'Boolean':
+                    jsonProperty.type = 'boolean';
+                    break;
+                }
+
+                modelSchema.properties[propName] = jsonProperty;
+                modelSchema.required?.push(propName);
+              }
+            }
+          });
+
+          models[modelName] = modelSchema;
+        }
+      }
+
+      // Find endpoints object declaration
+      if (ts.isVariableStatement(node)) {
+        const declaration = node.declarationList.declarations[0];
+        if (declaration && ts.isIdentifier(declaration.name)) {
+          const varName = declaration.name.text;
+
+          if (varName === 'endpoints' && declaration.initializer &&
+              ts.isObjectLiteralExpression(declaration.initializer)) {
+            declaration.initializer.properties.forEach(prop => {
+              if (ts.isPropertyAssignment(prop) &&
+                  ts.isIdentifier(prop.name) &&
+                  ts.isStringLiteral(prop.initializer)) {
+                const propName = prop.name.text;
+                endpointsObj[propName] = prop.initializer.text;
+              }
+            });
+          } else if (varName === 'arweaveDomain' && declaration.initializer &&
+                    ts.isStringLiteral(declaration.initializer)) {
+            arweaveDomain = declaration.initializer.text;
+          }
+        }
+      }
+
+      // Continue traversing the AST
+      ts.forEachChild(node, visit);
+    }
+
+    // Start the traversal
+    visit(sourceFile);
+
+    // Assign the collected data to the result
+    result.models = models;
+    result.endpoints.filePaths = endpointsObj.filePaths as string;
+    result.endpoints.files = endpointsObj.files as string;
+    if (arweaveDomain) {
+      result.arweaveDomain = arweaveDomain;
+    }
+
+    writeFileSync(outputPath, JSON.stringify(result, null, 2));
+    console.log(`JSON Schema saved to: ${outputPath}`);
+  } catch (error) {
+    console.error('Error converting TypeScript to JSON:', error);
+    throw error;
+  }
+}
+
+
+const calledFrom = basename(process.argv[1])
+
+if (calledFrom === 'schemaToJson.ts') {
+  try {
+    const args = process.argv.slice(2);
+    const workingDir = process.cwd();
+    let inputPath = join(workingDir, 'schema.ts');
+    let outputPath = join(workingDir, 'schemaJson.json');
+
+    if (args.length === 2) {
+      inputPath = args[0];
+      outputPath = args[1];
+    }
+
+    if (args.length === 1) {
+      inputPath = args[0];
+    }
+
+    console.log('inputPath', inputPath);
+    console.log('outputPath', outputPath);
+
+    schemaToJson(inputPath, outputPath);
+  } catch ( err ) {
+    console.error(err)
+  }
+}
+®types.tsÅ°fÅ°c≈Iinterface PropertyConfig {
+  type: string;
+  propertyType: string;
+  storage?: string;
+  path?: string;
+  extension?: string;
+  relation?: string;
+  items?: {
+    type: string;
+    relation: string;
+  };
+}
+
+interface ModelConfig {
+  type: string;
+  properties: {
+    [key: string]: PropertyConfig;
+  };
+  required?: string[];
+}
+
+interface SchemaConfig {
+  title: string;
+  description: string;
+  models: {
+    [key: string]: ModelConfig;
+  };
+  endpoints: {
+    filePaths: string;
+    files: string;
+  };
+  arweaveDomain: string;
+}
+
+export {PropertyConfig, ModelConfig, SchemaConfig}
+
+≠tsconfig.jsonÅ°fÅ°c≈æ{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "src"
+, "public/schema.ts"  ]
+}

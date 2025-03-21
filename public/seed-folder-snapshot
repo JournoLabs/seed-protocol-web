@@ -1,0 +1,353 @@
+Å°dÉßcodegenÅ°dÅ©templatesÅ°dÜ™header.njkÅ°fÅ°c≈ƒ{%- macro header(modelClass) -%}
+  import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+  import { relations } from 'drizzle-orm'
+  {% for property, definition in modelClass.schema -%}
+    {% if definition.dataType == 'List' -%}
+      {% set refTableName = definition.ref | pluralize | lower -%}
+      import { {{ refTableName }} } from './{{ definition.ref | lower }}Schema'
+    {% endif -%}
+  {% endfor %}
+{% endmacro %}
+©index.njkÅ°fÅ°c≈import { SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core'
+
+{% for model in models %}
+import { {{ model.name | pluralize | lower }} } from './{{ model.name }}Schema'
+{%- endfor %}
+import { seeds } from '../../seed/schema/SeedSchema'
+import { versions } from '../../seed/schema/VersionSchema'
+import { metadata } from '../../seed/schema/MetadataSchema'
+import { models } from '../../seed/schema/ModelSchema'
+import { modelUids } from '../../seed/schema/ModelUidSchema'
+{% for model in models %}
+export * from './{{ model.name }}Schema'
+{%- endfor %}
+
+const tablesByName = new Map<string, SQLiteTableWithColumns<any>>()
+{% for model in models %}
+tablesByName.set('{{ model.name | pluralize | lower }}', {{ model.name | pluralize | lower }})
+{%- endfor %}
+tablesByName.set('seeds', seeds)
+tablesByName.set('versions', versions)
+tablesByName.set('metadata', metadata)
+tablesByName.set('models', models)
+tablesByName.set('modelUids', modelUids)
+
+export const getTable = (table: string) => {
+  return tablesByName.get(table)
+}©model.njkÅ°fÅ°c≈¨@Model
+class {{ modelName }} {
+  {% for property in properties %}
+  {% if property.type == 'Relation' %}
+  @Relation('{{ property.targetModel }}') {{ property.name }}!: {{ property.targetModel }}
+  {% elif property.type == 'List' %}
+  @Relation('{{ property.targetModel }}') {{ property.name }}!: {{ property.type }}[]
+  {% else %}
+  @{{ property.type }} {{ property.name }}!: {{ property.type }}
+  {% endif %}
+  {% endfor %}
+}
+≠relations.njkÅ°fÅ°c≈‡{%- macro relations(tableName, listProperties) -%}
+{%- for property, definition in listProperties -%}
+
+{% if definition.dataType == 'List' -%}
+{% set refTableName = definition.ref | pluralize | lower -%}
+export const {{ tableName }}Relations = relations({{ tableName }}, ({ many }) => ({
+  {{ refTableName }}: many({{ refTableName }}){% if not loop.last %},{% endif %}
+}));
+{% endif -%}
+{% endfor -%}
+
+export type {{ tableName }}Type = {{ tableName }}.$inferSelect
+{% endmacro -%}™schema.njkÅ°fÅ°c≈={%- import 'header.njk' as header -%}
+{%- import 'table.njk' as table -%}
+{%- import 'relations.njk' as relations -%}
+{%- set tableName = modelName | pluralize | lower -%}
+
+{{- header.header(modelClass) -}}
+
+{{ table.table(tableName, modelName, modelClass) -}}
+
+{{ relations.relations(tableName, listProperties) -}}
+
+©table.njkÅ°fÅ°c≈¨{%- macro table(tableName, modelName, modelClass) -%}
+  export const {{ tableName }} = sqliteTable('{{ tableName }}', {
+  id: integer('id').unique().primaryKey(),
+  versionLocalId: text('version_local_id').unique(),
+  versionUid: text('version_uid'),
+  seedLocalId: text('seed_local_id'),
+  seedUid: text('seed_uid'),
+  createdAt: integer('created_at'),
+  attestationCreatedAt: integer('attestation_created_at'),
+  });
+
+  export const {{ modelName | lower }}Data = sqliteTable('{{ tableName }}_data', {
+  id: integer('id').unique().primaryKey(),
+  propertyLocalId: text('property_local_id').unique(),
+  uid: text('uid').unique(),
+  propertyName: text('property_name'),
+  propertyValue: text('property_value'),
+  dataType: text('data_type'),
+  easDataType: text('eas_data_type'),
+  refValueType: text('ref_value_type'),
+  refModelUid: text('ref_model_uid'),
+  refVersionUid: text('ref_version_uid'),
+  refSeedType: text('ref_seed_type'),
+  refSeedUid: text('ref_seed_uid'),
+  refSeedUids: text('ref_seed_uids'),
+  refResolvedValue: text('ref_resolved_value'),
+  refResolvedDisplayValue: text('ref_resolved_display_value'),
+  versionLocalId: text('version_local_id'),
+  versionUid: text('version_uid'),
+  seedLocalId: text('seed_local_id'),
+  seedUid: text('seed_uid'),
+  schemaUid: text('schema_uid'),
+  createdAt: integer('created_at'),
+  attestationRaw: text('attestation_raw'),
+  attestationCreatedAt: integer('attestation_created_at'),
+  {{ modelName | lower }}Id: integer('{{ tableName }}_id').references(() => {{ tableName }}.id),
+  });
+
+  export const {{ tableName }}DataRelations = relations({{ modelName | lower }}Data, ({ one }) => ({
+  {{ tableName }}: one({{ tableName }}),
+  }));
+
+{% endmacro -%}¶schemaÅ°dâ±AppStateSchema.tsÅ°fÅ°c≈import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const appState = sqliteTable('appState', {
+  key: text('key').unique(),
+  value: text('value'),
+  createdAt: int('created_at'),
+  updatedAt: int('updated_at'),
+})
+
+export type appStateType = appState.$inferSelect
+ØConfigSchema.tsÅ°fÅ°c≈-import { blob, int, sqliteTable, text, check, } from 'drizzle-orm/sqlite-core'
+import { sql }                          from 'drizzle-orm'
+
+export const config = sqliteTable('config', {
+  id: int('id').primaryKey({ autoIncrement: true }),
+  key: text('key').notNull(),
+  text: text('text'),
+  json: text('json', {mode: 'json'}),
+  blob: blob('blob', {mode: 'buffer'}),
+}, () => {
+  return {
+    // Add a custom check constraint
+    atLeastOneNotNull: check('hasValue', sql`key IS NOT NULL OR text IS NOT NULL OR json IS NOT NULL OR blob IS NOT NULL`),
+  }
+})±MetadataSchema.tsÅ°fÅ°c≈import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const metadata = sqliteTable('metadata', {
+  localId: text('local_id').unique(),
+  uid: text('uid'),
+  propertyName: text('property_name'),
+  propertyValue: text('property_value'),
+  schemaUid: text('schema_uid'),
+  modelType: text('model_type'),
+  seedLocalId: text('seed_local_id'),
+  seedUid: text('seed_uid'),
+  versionLocalId: text('version_local_id'),
+  versionUid: text('version_uid'),
+  easDataType: text('eas_data_type'),
+  refValueType: text('ref_value_type'),
+  refModelUid: text('ref_schema_uid'),
+  refSeedType: text('ref_seed_type'),
+  refResolvedValue: text('ref_resolved_value'),
+  refResolvedDisplayValue: text('ref_resolved_display_value'),
+  localStorageDir: text('local_storage_dir'),
+  attestationRaw: text('attestation_raw'),
+  attestationCreatedAt: int('attestation_created_at'),
+  contentHash: text('content_hash'),
+  createdAt: int('created_at'),
+  updatedAt: int('updated_at'),
+})
+
+export type MetadataType = metadata.$inferSelect
+ÆModelSchema.tsÅ°fÅ°c≈9import { int, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { relations } from 'drizzle-orm'
+
+export const models = sqliteTable('models', {
+  id: int('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+})
+
+export const modelsRelations = relations(models, ({ many }) => ({
+  properties: many(properties),
+}))
+
+export type NewModelRecord = typeof models.$inferInsert
+export type ModelRecordType = typeof models.$inferSelect
+
+export const properties = sqliteTable(
+  'properties',
+  {
+    id: int('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    dataType: text('data_type').notNull(),
+    readEndpoint: text('read_endpoint'),
+    updateEndpoint: text('update_endpoint'),
+    modelId: int('model_id')
+      .notNull()
+      .references(() => models.id),
+    refModelId: int('ref_model_id').references(() => models.id),
+    refValueType: text('ref_value_type'),
+  },
+  (table) => {
+    return {
+      uniqueNameModelId: unique('unique_name_model_id').on(
+        table.name,
+        table.modelId,
+      ),
+    }
+  },
+)
+
+export const propertiesRelations = relations(properties, ({ one }) => ({
+  model: one(models),
+  refModel: one(models),
+}))
+
+export type NewPropertyRecord = typeof properties.$inferInsert
+export type PropertyType = typeof properties.$inferSelect
+±ModelUidSchema.tsÅ°fÅ°c≈⁄import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { relations } from 'drizzle-orm'
+import { models } from './ModelSchema'
+
+export const modelUids = sqliteTable('model_uids', {
+  id: int('id').primaryKey({ autoIncrement: true }),
+  uid: text('uid').notNull(),
+  modelId: int('model_id')
+    .notNull()
+    .unique()
+    .references(() => models.id),
+})
+
+export const modelRelations = relations(modelUids, ({ many, one }) => ({
+  model: one(models),
+}))
+¥PropertyUidSchema.tsÅ°fÅ°c≈¸import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { relations } from 'drizzle-orm'
+import { models, properties } from './ModelSchema'
+
+export const propertyUids = sqliteTable('property_uids', {
+  id: int('id').primaryKey({ autoIncrement: true }),
+  uid: text('uid').notNull(),
+  propertyId: int('property_id')
+    .notNull()
+    .unique()
+    .references(() => models.id),
+})
+
+export const propertyUidRelations = relations(propertyUids, ({ one }) => ({
+  property: one(properties),
+}))
+≠SeedSchema.tsÅ°fÅ°c≈$import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const seeds = sqliteTable(
+  'seeds',
+  {
+    localId: text('local_id').unique(),
+    uid: text('uid'),
+    schemaUid: text('schema_uid'),
+    type: text('type'),
+    attestationRaw: text('attestation_raw'),
+    attestationCreatedAt: int('attestation_created_at'),
+    createdAt: int('created_at'),
+    updatedAt: int('updated_at'),
+    _markedForDeletion: int('_marked_for_deletion'),
+  },
+  // {
+  //   triggers: [
+  //     sql<string>`CREATE TRIGGER IF NOT EXISTS seeds_created_at_trigger
+  //         BEFORE INSERT
+  //         ON seeds
+  //         FOR EACH ROW
+  //     BEGIN
+  //         SELECT strftime('%s', 'now') * 1000 INTO NEW.created_at;
+  //     END;`,
+  //   ],
+  // },
+)
+
+export type SeedType = seeds.$inferSelect
+∞VersionSchema.tsÅ°fÅ°c≈˝import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const versions = sqliteTable('versions', {
+  localId: text('local_id').unique(),
+  uid: text('uid'),
+  seedLocalId: text('seed_local_id'),
+  seedUid: text('seed_uid'),
+  seedType: text('seed_type'),
+  note: text('note'),
+  createdAt: int('created_at'),
+  updatedAt: int('updated_at'),
+  attestationCreatedAt: int('attestation_created_at'),
+  attestationRaw: text('attestation_raw'),
+})
+
+export type VersionsType = versions.$inferSelect
+®index.tsÅ°fÅ°cƒæexport * from './SeedSchema'
+export * from './VersionSchema'
+export * from './MetadataSchema'
+export * from './AppStateSchema'
+export * from './ModelSchema'
+export * from './ModelUidSchema'
+©schema.tsÅ°fÅ°c≈†import { Image, List, Model, Relation, Text, Date, Number, Boolean } from '@/schema'
+
+
+@Model
+class Post {
+  @Text() title!: string
+  @Text() summary!: string
+  @Image() featureImage!: string
+  @Text('ItemStorage', '/html', '.html') html!: string
+  @Text('ItemStorage', '/json', '.json') json!: string
+  @Text() storageTransactionId!: string
+  @List('Identity') authors!: string[]
+  @Text() importUrl!: string
+}
+
+@Model
+class Identity {
+  @Text() name!: string
+  @Text() profile!: string
+  @Text() displayName!: string
+  @Image() avatarImage!: string
+  @Image() coverImage!: string
+}
+
+@Model
+class Link {
+  @Text() url!: string
+  @Text() text!: string
+}
+
+@Model
+class TestModel {
+  @Text() name!: string
+  @Date() birthdate!: string
+  @Number() age!: number
+  @Boolean() isAlive!: boolean
+  @List('Text') nicknames!: string[]
+  @Relation('TestModel') bestFriend!: string
+  @Image() profilePic!: string
+}
+
+
+const models = {
+  Identity,
+  Link,
+  Post,
+  TestModel,
+}
+
+const endpoints = {
+  filePaths: '/api/seed/migrations',
+  files: '/app-files',
+}
+
+const arweaveDomain = 'arweave.net'
+
+export { models, endpoints, arweaveDomain }
+
+export default { models, endpoints, arweaveDomain }
