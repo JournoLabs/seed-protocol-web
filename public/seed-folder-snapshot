@@ -34,19 +34,7 @@ tablesByName.set('modelUids', modelUids)
 
 export const getTable = (table: string) => {
   return tablesByName.get(table)
-}©model.njkÅ°fÅ°c≈¨@Model
-class {{ modelName }} {
-  {% for property in properties %}
-  {% if property.type == 'Relation' %}
-  @Relation('{{ property.targetModel }}') {{ property.name }}!: {{ property.targetModel }}
-  {% elif property.type == 'List' %}
-  @Relation('{{ property.targetModel }}') {{ property.name }}!: {{ property.type }}[]
-  {% else %}
-  @{{ property.type }} {{ property.name }}!: {{ property.type }}
-  {% endif %}
-  {% endfor %}
-}
-≠relations.njkÅ°fÅ°c≈‡{%- macro relations(tableName, listProperties) -%}
+}≠relations.njkÅ°fÅ°c≈‡{%- macro relations(tableName, listProperties) -%}
 {%- for property, definition in listProperties -%}
 
 {% if definition.dataType == 'List' -%}
@@ -111,7 +99,19 @@ export type {{ tableName }}Type = {{ tableName }}.$inferSelect
   {{ tableName }}: one({{ tableName }}),
   }));
 
-{% endmacro -%}¶schemaÅ°dâ±AppStateSchema.tsÅ°fÅ°c≈import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+{% endmacro -%}©model.njkÅ°fÅ°c≈¨@Model
+class {{ modelName }} {
+  {% for property in properties %}
+  {% if property.type == 'Relation' %}
+  @Relation('{{ property.targetModel }}') {{ property.name }}!: {{ property.targetModel }}
+  {% elif property.type == 'List' %}
+  @Relation('{{ property.targetModel }}') {{ property.name }}!: {{ property.type }}[]
+  {% else %}
+  @{{ property.type }} {{ property.name }}!: {{ property.type }}
+  {% endif %}
+  {% endfor %}
+}
+¶schemaÅ°dâ±AppStateSchema.tsÅ°fÅ°c≈import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const appState = sqliteTable('appState', {
   key: text('key').unique(),
@@ -241,6 +241,28 @@ export const propertyUids = sqliteTable('property_uids', {
 export const propertyUidRelations = relations(propertyUids, ({ one }) => ({
   property: one(properties),
 }))
+∞VersionSchema.tsÅ°fÅ°c≈˝import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const versions = sqliteTable('versions', {
+  localId: text('local_id').unique(),
+  uid: text('uid'),
+  seedLocalId: text('seed_local_id'),
+  seedUid: text('seed_uid'),
+  seedType: text('seed_type'),
+  note: text('note'),
+  createdAt: int('created_at'),
+  updatedAt: int('updated_at'),
+  attestationCreatedAt: int('attestation_created_at'),
+  attestationRaw: text('attestation_raw'),
+})
+
+export type VersionsType = versions.$inferSelect
+®index.tsÅ°fÅ°cƒæexport * from './SeedSchema'
+export * from './VersionSchema'
+export * from './MetadataSchema'
+export * from './AppStateSchema'
+export * from './ModelSchema'
+export * from './ModelUidSchema'
 ≠SeedSchema.tsÅ°fÅ°c≈$import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const seeds = sqliteTable(
@@ -270,28 +292,6 @@ export const seeds = sqliteTable(
 )
 
 export type SeedType = seeds.$inferSelect
-∞VersionSchema.tsÅ°fÅ°c≈˝import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-
-export const versions = sqliteTable('versions', {
-  localId: text('local_id').unique(),
-  uid: text('uid'),
-  seedLocalId: text('seed_local_id'),
-  seedUid: text('seed_uid'),
-  seedType: text('seed_type'),
-  note: text('note'),
-  createdAt: int('created_at'),
-  updatedAt: int('updated_at'),
-  attestationCreatedAt: int('attestation_created_at'),
-  attestationRaw: text('attestation_raw'),
-})
-
-export type VersionsType = versions.$inferSelect
-®index.tsÅ°fÅ°cƒæexport * from './SeedSchema'
-export * from './VersionSchema'
-export * from './MetadataSchema'
-export * from './AppStateSchema'
-export * from './ModelSchema'
-export * from './ModelUidSchema'
 ©schema.tsÅ°fÅ°c≈†import { Image, List, Model, Relation, Text, Date, Number, Boolean } from '@/schema'
 
 

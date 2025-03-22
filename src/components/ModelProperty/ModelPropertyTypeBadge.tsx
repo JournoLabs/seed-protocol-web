@@ -1,7 +1,9 @@
 import { FC } from "react";
 import { PropertyType } from "../../types/modelProperties";
+import { HotRendererProps } from "@handsontable/react-wrapper";
 
-const PropertyTypeBadge: FC<{ type: PropertyType }> = ({ type }) => {
+const PropertyTypeBadge: FC<HotRendererProps> = ({ value }) => {
+  const type = value as PropertyType;
   const getColorClass = () => {
     switch (type) {
       case 'Text':
@@ -22,6 +24,10 @@ const PropertyTypeBadge: FC<{ type: PropertyType }> = ({ type }) => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (!type) {
+    return <></>;
+  }
 
   return (
     <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${getColorClass()}`}>

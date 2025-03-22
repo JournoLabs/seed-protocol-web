@@ -1,9 +1,7 @@
 import { FC, useEffect, useState } from "react"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
-import { models } from '../../../schema'
+import { useModels } from "@seedprotocol/sdk"
 import PageHeader from "./PageHeader"
-
-const modelNames = Object.keys(models)
 
 interface PageContainerRenderProps {
   selectedIndex: number;
@@ -23,6 +21,9 @@ const PageContainer: FC<PageContainerProps> = ({children, title, description, ac
   const { modelName, seedId, section } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  const {models} = useModels()
+
+  const modelNames = models ? Object.keys(models) : []
 
   // Initialize the active index based on the URL parameter or default to the first tab
   const initialIndex = modelName ? modelNames.indexOf(modelName) : 0
@@ -46,7 +47,7 @@ const PageContainer: FC<PageContainerProps> = ({children, title, description, ac
   }, [selectedIndex, navigate, location, section])
 
   return (
-    <>
+    <div className="max-w-4xl">
       <PageHeader
         title={title}
         description={description}
@@ -55,7 +56,7 @@ const PageContainer: FC<PageContainerProps> = ({children, title, description, ac
       <div className="py-10">
         {typeof children === 'function' ? children({selectedIndex, setSelectedIndex}) : null}
       </div>
-    </>
+    </div>
   )
 }
 

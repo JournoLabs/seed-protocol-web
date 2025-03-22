@@ -1,0 +1,235 @@
+/* Handsontable Custom Theme Variables */
+.handsontable.ht-theme-seed,
+.handsontable.ht-theme-seed-dark,
+.handsontable.ht-theme-seed-dark-auto {
+  /* Base styles */
+  --ht-font-size: var(--font-size-sm, 0.875rem);
+  --ht-line-height: var(--line-height-base, 1.5);
+  --ht-font-weight: var(--font-weight-normal, 400);
+  --ht-gap-size: 6px;
+  --ht-icon-size: 16px;
+  --ht-table-transition: 0.2s;
+  
+  /* Colors */
+  --ht-foreground-color: var(--color-gray-900, #1f2937);
+  --ht-background-color: var(--color-white, #ffffff);
+  --ht-placeholder-color: var(--color-gray-400, #9ca3af);
+  --ht-read-only-color: var(--color-gray-500, #6b7280);
+  --ht-disabled-color: var(--color-gray-400, #9ca3af);
+  
+  /* Border colors */
+  --ht-border-color: var(--color-white, #ffffff);
+  --ht-cell-horizontal-border-color: var(--color-white, #ffffff);
+  --ht-cell-vertical-border-color: var(--color-white, #ffffff);
+  --ht-wrapper-border-width: 0px;
+  --ht-wrapper-border-radius: 0.5rem;
+  --ht-wrapper-border-color: var(--color-white, #ffffff);
+  
+  /* Cell styles */
+  --ht-cell-horizontal-padding: 0;
+  --ht-cell-vertical-padding: 1rem;
+  --ht-cell-horizontal-border-color: var(--color-white, #ffffff);
+  --ht-cell-editor-border-width: 0px;
+  --ht-cell-editor-border-color: var(--color-transparent, transparent);
+  --ht-cell-editor-foreground-color: var(--color-gray-900, #1f2937);
+  --ht-cell-editor-background-color: var(--color-white, #ffffff);
+  --ht-cell-editor-shadow-blur-radius: 8px;
+  --ht-cell-editor-shadow-color: rgba(59, 130, 246, 0.1);
+  
+  /* Selection colors */
+  --ht-cell-selection-border-width: 0px;
+  --ht-cell-selection-border-color: var(--color-transparent, transparent);
+  --ht-cell-selection-background-color: var(--color-transparent, transparent);
+  
+  /* Header styles */
+  --ht-header-font-weight: var(--font-weight-semibold, 600);
+  --ht-header-font-size: var(--font-size-sm, 0.875rem);
+  --ht-header-foreground-color: var(--color-gray-900, #1f2937);
+  --ht-header-background-color: var(--color-white, #ffffff);
+  --ht-header-row-foreground-color: var(--color-gray-900, #1f2937);
+  --ht-header-row-background-color: var(--color-white, #ffffff);
+  --ht-header-active-border-color: var(--color-transparent, transparent);
+  --ht-header-active-foreground-color: var(--color-white, #ffffff);
+  --ht-header-active-background-color: var(--color-transparent, transparent);
+  --ht-header-row-active-foreground-color: var(--color-white, #ffffff);
+  --ht-header-row-active-background-color: var(--color-transparent, transparent);
+  
+  /* Row styles */
+  --ht-row-header-odd-background-color: var(--color-white, #ffffff);
+  --ht-row-header-even-background-color: var(--color-white, #ffffff);
+  --ht-row-cell-odd-background-color: var(--color-white, #ffffff);
+  --ht-row-cell-even-background-color: var(--color-white, #ffffff);
+  
+  /* Hover states */
+  --ht-row-hover-background-color: var(--color-gray-50, #f9fafb);
+  
+  /* Invalid cell styles */
+  --ht-cell-error-background-color: var(--color-red-50, #fef2f2);
+  --ht-cell-error-border-color: var(--color-red-100, #fee2e2);
+  
+  /* Read-only cells */
+  --ht-cell-readonly-background-color: var(--color-transparent, transparent);
+  --ht-cell-readonly-foreground-color: var(--color-transparent, transparent);
+  
+  /* Dropdown menu */
+  --ht-dropdown-menu-background-color: var(--color-white, #ffffff);
+  --ht-dropdown-menu-border-color: var(--color-gray-200, #e5e7eb);
+  
+  /* Context menu */
+  --ht-context-menu-background-color: var(--color-white, #ffffff);
+  --ht-context-menu-border-color: var(--color-gray-200, #e5e7eb);
+  --ht-context-menu-shadow-color: rgba(0, 0, 0, 0.1);
+  --ht-context-menu-border-radius: 0.375rem;
+  
+  /* Input fields */
+  --ht-input-border-color: var(--color-gray-300, #d1d5db);
+  --ht-input-foreground-color: var(--color-gray-700, #374151);
+  --ht-input-background-color: var(--color-white, #ffffff);
+  --ht-input-border-radius: 0.375rem;
+  --ht-input-hover-border-color: var(--color-gray-400, #9ca3af);
+  --ht-input-hover-background-color: var(--color-gray-50, #f9fafb);
+  
+  /* Checkbox styles */
+  --ht-checkbox-size: 1rem;
+  --ht-checkbox-border-radius: 0.25rem;
+  --ht-checkbox-border-color: var(--color-gray-300, #d1d5db);
+  --ht-checkbox-background-color: var(--color-gray-100, #f3f4f6);
+  --ht-checkbox-checked-border-color: var(--color-transparent, transparent);
+  --ht-checkbox-checked-background-color: var(--color-transparent, transparent);
+  --ht-checkbox-checked-icon-color: var(--color-transparent, transparent);
+  
+  /* Scrollbar styles */
+  --ht-scrollbar-track-color: var(--color-gray-100, #f3f4f6);
+  --ht-scrollbar-thumb-color: var(--color-gray-300, #d1d5db);
+  --ht-scrollbar-border-radius: 0.25rem;
+}
+
+/* Apply the theme to the container */
+.handsontable.ht-theme-seed,
+.handsontable.ht-theme-seed-dark,
+.handsontable.ht-theme-seed-dark-auto {
+  font-size: var(--ht-font-size);
+  line-height: var(--ht-line-height);
+  font-weight: var(--ht-font-weight);
+}
+
+.handsontable.ht-theme-seed thead tr th,
+.handsontable.ht-theme-seed-dark thead tr th,
+.handsontable.ht-theme-seed-dark-auto thead tr th {
+  font-size: var(--ht-header-font-size);
+  font-weight: var(--ht-header-font-weight);
+  color: var(--ht-header-foreground-color);
+  background-color: var(--ht-header-background-color);
+  text-align: left;
+}
+
+.handsontable.ht-theme-seed thead tr th .colHeader,
+.handsontable.ht-theme-seed-dark thead tr th .colHeader,
+.handsontable.ht-theme-seed-dark-auto thead tr th .colHeader {
+  font-size: var(--ht-header-font-size);
+}
+
+.handsontable.ht-theme-seed thead tr th .relative,
+.handsontable.ht-theme-seed-dark thead tr th .relative,
+.handsontable.ht-theme-seed-dark-auto thead tr th .relative {
+  font-size: var(--font-size-base);
+  padding: var(--ht-cell-vertical-padding) var(--ht-cell-horizontal-padding);
+  border-bottom: 1px solid var(--color-gray-300);
+}
+
+/* Apply theme to cells */
+.handsontable.ht-theme-seed td,
+.handsontable.ht-theme-seed-dark td,
+.handsontable.ht-theme-seed-dark-auto td {
+  line-height: var(--ht-line-height);
+  font-weight: var(--font-weight-medium);
+  padding: var(--ht-cell-vertical-padding) var(--ht-cell-horizontal-padding);
+}
+
+/* Dropdown caret styles */
+.handsontable.ht-theme-seed td[data-column="1"],
+.handsontable.ht-theme-seed-dark td[data-column="1"],
+.handsontable.ht-theme-seed-dark-auto td[data-column="1"] {
+  position: relative;
+}
+
+.handsontable.ht-theme-seed td[data-column="1"]::after,
+.handsontable.ht-theme-seed-dark td[data-column="1"]::after,
+.handsontable.ht-theme-seed-dark-auto td[data-column="1"]::after {
+  content: '';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--color-gray-400);
+  opacity: 0;
+  transition: opacity var(--ht-table-transition);
+  pointer-events: none;
+}
+
+.handsontable.ht-theme-seed td[data-column="1"]:hover::after,
+.handsontable.ht-theme-seed-dark td[data-column="1"]:hover::after,
+.handsontable.ht-theme-seed-dark-auto td[data-column="1"]:hover::after {
+  opacity: 1;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .handsontable.ht-theme-seed-dark,
+  .handsontable.ht-theme-seed-dark-auto {
+    --ht-foreground-color: #f3f4f6;
+    --ht-background-color: #1f2937;
+    --ht-placeholder-color: #6b7280;
+    --ht-read-only-color: #9ca3af;
+    --ht-disabled-color: #6b7280;
+    
+    --ht-border-color: #374151;
+    --ht-cell-horizontal-border-color: #374151;
+    --ht-cell-vertical-border-color: #374151;
+    --ht-wrapper-border-color: #374151;
+    
+    --ht-cell-editor-foreground-color: #f3f4f6;
+    --ht-cell-editor-background-color: #1f2937;
+    
+    --ht-cell-selection-background-color: #1e40af;
+    
+    --ht-header-foreground-color: #9ca3af;
+    --ht-header-background-color: #111827;
+    
+    --ht-row-header-odd-background-color: #1f2937;
+    --ht-row-header-even-background-color: #1f2937;
+    --ht-row-cell-odd-background-color: #1f2937;
+    --ht-row-cell-even-background-color: #1f2937;
+    
+    --ht-row-hover-background-color: #374151;
+    
+    --ht-dropdown-menu-background-color: #1f2937;
+    --ht-dropdown-menu-border-color: #374151;
+    
+    --ht-context-menu-background-color: #1f2937;
+    --ht-context-menu-border-color: #374151;
+    
+    --ht-input-border-color: #4b5563;
+    --ht-input-foreground-color: #f3f4f6;
+    --ht-input-background-color: #1f2937;
+    --ht-input-hover-border-color: #6b7280;
+    --ht-input-hover-background-color: #374151;
+    
+    --ht-checkbox-border-color: #4b5563;
+    --ht-checkbox-background-color: #374151;
+    
+    --ht-scrollbar-track-color: #1f2937;
+    --ht-scrollbar-thumb-color: #4b5563;
+
+    /* Dark mode dropdown caret */
+    .handsontable.ht-theme-seed-dark td[data-column="1"]::after,
+    .handsontable.ht-theme-seed-dark-auto td[data-column="1"]::after {
+      border-top-color: var(--color-gray-500);
+    }
+  }
+}
+

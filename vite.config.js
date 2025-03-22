@@ -4,6 +4,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { apiRoutes } from './src/plugin/api';
 import { resolve } from 'path';
 import { dependencies } from './package.json'
+import tailwindcss from '@tailwindcss/vite';
 
 const renderChunks = (deps) => {
     let chunks = {};
@@ -31,6 +32,7 @@ const webConfig = defineConfig({
             include: ['crypto', 'util', 'stream'],
         }),
         apiRoutes(),
+        tailwindcss(),
     ],
     server: {
         port: 4004,

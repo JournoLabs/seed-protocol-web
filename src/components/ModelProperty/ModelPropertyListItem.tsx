@@ -1,21 +1,22 @@
 import { LinkIcon, FolderIcon, DocumentIcon, TagIcon } from '@heroicons/react/24/outline'
-import { FC } from 'react';
-import { PropertyAttribute, PropertyDetails } from '../../types/modelProperties';
+import { FC, useEffect, useState } from 'react';
+import { PropertyDetails } from '../../types/modelProperties';
 import PropertyTypeBadge from './ModelPropertyTypeBadge';
 import { Link } from 'react-router-dom';
-import { models } from '../../../schema';
-
+import { useModels } from '@seedprotocol/sdk';
 
 const ModelPropertyListItem: FC<PropertyDetails> = (property) => {
 
-  const modelNames = Object.keys(models)
+  const [modelNames, setModelNames] = useState<string[]>([])
+  const {models} = useModels()
 
-  const attributes: PropertyAttribute[] = [
-    { name: 'Type', value: property.dataType || null, icon: TagIcon },
-    { name: 'Storage', value: property.storageType || null, icon: FolderIcon },
-    { name: 'Path', value: property.path || null, icon: LinkIcon },
-    { name: 'Filename Suffix', value: property.filenameSuffix || null, icon: DocumentIcon }
-  ];
+
+  useEffect(() => {
+    if (!models) {
+      return
+    }
+    setModelNames(Object.keys(models))
+  }, [models])
 
 
   return (
@@ -40,7 +41,7 @@ const ModelPropertyListItem: FC<PropertyDetails> = (property) => {
             <div className="flex items-center">
               <TagIcon className="h-4 w-4 mr-1 flex-shrink-0 text-gray-500" />
               {
-                modelNames.includes(property.ref) ? (
+                property.ref && modelNames.includes(property.ref) ? (
                   <Link to={`/Models/${property.ref}`} className="font-mono text-gray-700">{property.ref}</Link>
                 ) : (
                   <span className="font-mono text-gray-700">{property.ref}</span>

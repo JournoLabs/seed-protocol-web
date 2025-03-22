@@ -1,18 +1,18 @@
 import { FC } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, } from 'react-router-dom'
 import ModelPage from '../../pages/ModelPage'
 import ItemPage from '../../pages/ItemPage'
 
 const SectionRouter: FC = () => {
   const { section } = useParams()
 
-  switch (section) {
-    case 'Models':
+  switch (section?.toLowerCase()) {
+    case 'models':
       return <ModelPage />
-    case 'Items':
+    case 'items':
       return <ItemPage />
     default:
-      return <ModelPage />
+      return <></>
   }
 }
 
